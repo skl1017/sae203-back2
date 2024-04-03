@@ -2,7 +2,7 @@
 
 Assurez-vous d'avoir installer localement le gestionnaire de paquets "composer". Installer toutes les dépendances avec
 
-### 'composer install'
+1. ### `composer install`
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
