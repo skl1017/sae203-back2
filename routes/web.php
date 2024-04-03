@@ -15,3 +15,4 @@ Route::put('/contacts/{id}',[ContactsController::class, 'updateContactWithTags']
 Route::delete('/contacts/{id}',[ContactsController::class, 'deleteContact']);
 Route::get('/tags', [TagsController::class, 'getTags']);
 Route::post('/tags',[TagsController::class, 'addTag']);
+Route::delete('/tags/{id}', [TagsController::class,'deleteTag']);

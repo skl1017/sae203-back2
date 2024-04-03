@@ -19,10 +19,8 @@ class ContactsController extends Controller
 
     public function getContacts(Request $request)
 {
-
     $nom = $request->input('nom');
     $tags = $request->input('tags');
-    $num = $request->input('num');
 
     $query = Contacts::query();
 
@@ -34,8 +32,9 @@ class ContactsController extends Controller
     }
 
     if ($tags) {
-        
-        $tagsArray = explode(',', $tags);
+        // Si les tags sont fournis sous forme de répétitions de paramètre "tags",
+        // ou s'ils sont séparés par des virgules, nous les récupérons et les utilisons dans la requête.
+        $tagsArray = is_array($tags) ? $tags : explode(',', $tags);
         $query->whereHas('tags', function ($q) use ($tagsArray) {
             $q->whereIn('tag', $tagsArray);
         });
@@ -58,6 +57,11 @@ class ContactsController extends Controller
     // Retourner les contacts sous forme de réponse JSON
     return response()->json($contactList);
 }
+
+
+
+    
+
 
 
 
@@ -125,33 +129,22 @@ class ContactsController extends Controller
     public function updateContactWithTags(Request $request, $id)
 {
     try {
-        $contact = Contacts::findOrFail($id);
+        // Récupérer les données de la requête
+        $data = $request->all();
 
-        $validatedData = Contacts::validateData($request->all());
+        // Valider les données
+        $validatedData = Contacts::validateData($data);
 
-        // Mettre à jour les données du contact
-        $contact->update($validatedData);
-        $newTags = [];
-        if (isset($validatedData['tags'])) {
-            $tagIds = [];
-            foreach ($validatedData['tags'] as $tagName) {
-                if (!empty($tagName['tag']) && !empty($tagName['color'])) {
-                    $tag = Tags::updateOrCreate(['tag' => $tagName['tag']], ['color' => $tagName['color']]);
-                    $tagIds[] = $tag->id;
-                    $newTags[] = $tag;
-                }
-            }
-            $contact->tags()->sync($tagIds);
-        } else {
-            $contact->tags()->sync([]); 
-        }
+        // Mettre à jour le contact avec ses tags associés
+        $result = Contacts::updateContactWithTags($id, $validatedData);
 
-        $contact->refresh(); 
-
-        return response()->json(['message' => 'Contact mis à jour avec succès', 'contact' => $contact, 'tags' => $newTags]);
+        // Retourner une réponse JSON avec le résultat
+        return response()->json($result);
     } catch (ValidationException $e) {
+        // Retourner une réponse JSON avec les erreurs de validation
         return response()->json(['error' => $e->errors()], 400);
     } catch (\Exception $e) {
+        // Retourner une réponse JSON en cas d'erreur interne du serveur
         return response()->json(['error' => 'Une erreur est survenue lors de la mise à jour du contact'], 500);
     }
 }

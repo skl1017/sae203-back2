@@ -33,4 +33,17 @@ class Tags extends Model
     public static function getTags(){
         return self::all();
     }
+
+    public static function deleteTag($id)
+{
+    try {
+        $contact = Tags::findOrFail($id);
+        $contact->delete();
+
+        return true; 
+    } catch (\Exception $e) {
+        return false;
+    }
+}
+
 }

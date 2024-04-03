@@ -19,6 +19,9 @@ class TagsController extends Controller
         $response = Tags::addTag($tag);
         return response()->json($response);
 }
+    function deleteTag(Request $request, $id){
+        return response()->json(Tags::deleteTag($id));
+    }
 
    
 }
